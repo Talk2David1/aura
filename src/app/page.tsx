@@ -1,64 +1,89 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { Header } from "@/components/layout/Header";
+import { StatsOverview } from "@/components/studio/StatsOverview";
+import { CreationForm } from "@/components/studio/CreationForm";
+import { RecentVideos } from "@/components/studio/RecentVideos";
+import { ProfileView } from "@/components/profile/ProfileView";
+import { SettingsView } from "@/components/settings/SettingsView";
+import { ProjectsView } from "@/components/studio/ProjectsView";
+import { HistoryView } from "@/components/studio/HistoryView";
+import { UpgradePlanView } from "@/components/billing/UpgradePlanView";
+import { TemplatesView } from "@/components/library/TemplatesView";
+import { AssetsView } from "@/components/library/AssetsView";
+
+export default function App() {
+  const [activeView, setActiveView] = useState("studio");
+
+  const getHeaderTitles = () => {
+    switch(activeView) {
+      case 'profile': return { title: "Profile", subtitle: "Manage your account and billing" };
+      case 'settings': return { title: "Settings", subtitle: "Global application preferences" };
+      case 'studio': return { title: "Video Studio", subtitle: "Create AI-powered faceless videos" };
+      case 'projects': return { title: "My Projects", subtitle: "Manage and export your generated content" };
+      case 'history': return { title: "Audit Log", subtitle: "History of generation activity and credits" };
+      case 'upgrade': return { title: "Subscription Plans", subtitle: "Select a plan that fits your scale" };
+      case 'templates': return { title: "Templates", subtitle: "Start quick with curated base videos" };
+      case 'assets': return { title: "Library Assets", subtitle: "Manage uploaded media and uploads" };
+      default: return { title: activeView.charAt(0).toUpperCase() + activeView.slice(1), subtitle: "Coming soon..." };
+    }
+  };
+
+  const { title, subtitle } = getHeaderTitles();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex w-full h-[100dvh]">
+      {/* Desktop Sidebar */}
+      <Sidebar activeView={activeView} setActiveView={setActiveView} />
+
+      <main className="flex-1 flex flex-col w-full h-full min-w-0 bg-bg-tertiary">
+        <Header title={title} subtitle={subtitle} />
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto w-full">
+          <div className="max-w-6xl mx-auto p-4 md:p-6 pb-[90px] md:pb-6">
+            
+            {/* Mobile Greeting (hidden on desktop) */}
+            <div className={`md:hidden mb-4 mt-2 ${activeView !== 'studio' ? 'hidden' : ''}`}>
+              <h2 className="text-[18px] font-medium text-text-primary">Hey, Adaeze</h2>
+              <p className="text-[12px] text-text-tertiary mt-0.5">Ready to create something?</p>
+            </div>
+
+            {activeView === 'studio' ? (
+              <>
+                <StatsOverview />
+                <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] 2xl:grid-cols-[1fr_450px] gap-4 md:gap-5">
+                  <CreationForm />
+                  <RecentVideos />
+                </div>
+              </>
+            ) : activeView === 'profile' ? (
+              <ProfileView onUpgrade={() => setActiveView('upgrade')} />
+            ) : activeView === 'settings' ? (
+              <SettingsView />
+            ) : activeView === 'projects' ? (
+              <ProjectsView />
+            ) : activeView === 'history' ? (
+              <HistoryView />
+            ) : activeView === 'upgrade' ? (
+              <UpgradePlanView />
+            ) : activeView === 'templates' ? (
+              <TemplatesView />
+            ) : activeView === 'assets' ? (
+              <AssetsView />
+            ) : (
+              <div className="flex items-center justify-center h-[50vh] text-text-tertiary">
+                {activeView} coming soon...
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        {/* Mobile Bottom Nav */}
+        <BottomNav activeView={activeView} setActiveView={setActiveView} />
       </main>
     </div>
   );

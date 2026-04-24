@@ -1,0 +1,354 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary)}
+.phone-wrap{display:flex;justify-content:center;padding:20px 0 32px}
+.phone{width:360px;background:var(--color-background-tertiary);border:1px solid var(--color-border-secondary);border-radius:40px;overflow:hidden;min-height:780px;display:flex;flex-direction:column}
+.status-bar{background:var(--color-background-primary);padding:12px 20px 8px;display:flex;justify-content:space-between;align-items:center}
+.status-time{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.status-icons{display:flex;gap:5px;align-items:center}
+.screen{flex:1;background:var(--color-background-tertiary);overflow:hidden;display:flex;flex-direction:column}
+.topnav{background:var(--color-background-primary);padding:10px 16px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.topnav-row{display:flex;align-items:center;justify-content:space-between}
+.logo-row{display:flex;align-items:center;gap:7px}
+.logo-icon{width:26px;height:26px;border-radius:8px;background:#7F77DD;display:flex;align-items:center;justify-content:center}
+.logo-text{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.logo-badge{font-size:9px;color:#534AB7;background:#EEEDFE;padding:2px 5px;border-radius:4px}
+.notif-btn{width:32px;height:32px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.scroll-area{flex:1;overflow-y:auto;padding:14px 14px 80px}
+.greeting{margin-bottom:16px}
+.greeting-name{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.greeting-sub{font-size:12px;color:var(--color-text-tertiary);margin-top:2px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.stat{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:11px 13px}
+.stat-num{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat-label{font-size:10px;color:var(--color-text-tertiary);margin-top:1px}
+.stat-change{font-size:10px;color:#0F6E56;margin-top:3px}
+.section-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.section-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.see-all{font-size:11px;color:#7F77DD;cursor:pointer}
+.mode-scroll{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.mode-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:12px;cursor:pointer;transition:border-color 0.15s}
+.mode-card.active{border-color:#7F77DD;background:#EEEDFE}
+.mode-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:7px}
+.mode-label{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.mode-desc{font-size:10px;color:var(--color-text-tertiary);margin-top:2px}
+.create-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;margin-bottom:16px}
+.form-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;display:block}
+.form-group{margin-bottom:11px}
+textarea,input,select{width:100%;font-size:13px;padding:9px 11px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans);resize:none}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#AFA9EC}
+.upload-zone{border:0.5px dashed var(--color-border-secondary);border-radius:10px;padding:16px;text-align:center;background:var(--color-background-secondary);cursor:pointer}
+.upload-icon{width:32px;height:32px;margin:0 auto 6px;border-radius:8px;background:#EEEDFE;display:flex;align-items:center;justify-content:center}
+.upload-label{font-size:12px;color:var(--color-text-secondary)}
+.upload-sub{font-size:10px;color:var(--color-text-tertiary);margin-top:2px}
+.len-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.len-btn{padding:7px 4px;border:0.5px solid var(--color-border-tertiary);border-radius:7px;font-size:10px;color:var(--color-text-secondary);cursor:pointer;text-align:center;background:var(--color-background-secondary)}
+.len-btn.active{border-color:#7F77DD;color:#534AB7;background:#EEEDFE;font-weight:500}
+.settings-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gen-btn{width:100%;padding:12px;background:#7F77DD;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;margin-top:4px}
+.video-list{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+.video-row{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;display:flex;overflow:hidden;cursor:pointer}
+.video-thumb{width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+.thumb-purple{background:#EEEDFE}
+.thumb-teal{background:#E1F5EE}
+.thumb-coral{background:#FAECE7}
+.play-circle{position:absolute;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center}
+.video-info{padding:10px 10px;flex:1;min-width:0}
+.video-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.video-meta{display:flex;align-items:center;gap:6px}
+.vtag{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500}
+.tag-purple{background:#EEEDFE;color:#534AB7}
+.tag-teal{background:#E1F5EE;color:#0F6E56}
+.tag-coral{background:#FAECE7;color:#993C1D}
+.vdur{font-size:10px;color:var(--color-text-tertiary)}
+.progress-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:13px;margin-bottom:16px}
+.prog-top{display:flex;justify-content:space-between;margin-bottom:8px}
+.prog-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.prog-pct{font-size:11px;color:#534AB7;font-weight:500}
+.prog-bar-bg{height:4px;background:var(--color-background-secondary);border-radius:2px;margin-bottom:6px}
+.prog-bar{height:4px;background:#7F77DD;border-radius:2px}
+.prog-sub{font-size:10px;color:var(--color-text-tertiary)}
+.bottom-nav{background:var(--color-background-primary);border-top:0.5px solid var(--color-border-tertiary);padding:8px 0 16px;display:flex;justify-content:space-around}
+.nav-tab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 12px}
+.nav-tab-label{font-size:10px;color:var(--color-text-tertiary)}
+.nav-tab.active .nav-tab-label{color:#7F77DD;font-weight:500}
+.fab{position:absolute;bottom:72px;right:20px;width:48px;height:48px;background:#7F77DD;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.screen-inner{position:relative;flex:1;display:flex;flex-direction:column;overflow:hidden}
+</style>
+
+<h2 class="sr-only">Visionix mobile app UI mockup showing the video studio, creation modes, recent videos, and bottom navigation</h2>
+
+<div class="phone-wrap">
+  <div class="phone">
+    <div class="status-bar">
+      <span class="status-time">9:41</span>
+      <div class="status-icons">
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><rect x="0" y="4" width="3" height="7" rx="0.5" fill="var(--color-text-primary)"/><rect x="4" y="2.5" width="3" height="8.5" rx="0.5" fill="var(--color-text-primary)"/><rect x="8" y="1" width="3" height="10" rx="0.5" fill="var(--color-text-primary)"/><rect x="12" y="0" width="3" height="11" rx="0.5" fill="var(--color-text-primary)" opacity="0.3"/></svg>
+        <svg width="14" height="11" viewBox="0 0 14 11" fill="none"><path d="M7 2.5C9.2 2.5 11.2 3.4 12.6 4.9L13.8 3.6C12 1.7 9.6 0.5 7 0.5C4.4 0.5 2 1.7 0.2 3.6L1.4 4.9C2.8 3.4 4.8 2.5 7 2.5Z" fill="var(--color-text-primary)"/><path d="M7 5.5C8.4 5.5 9.7 6.1 10.6 7.1L11.8 5.8C10.5 4.5 8.8 3.5 7 3.5C5.2 3.5 3.5 4.5 2.2 5.8L3.4 7.1C4.3 6.1 5.6 5.5 7 5.5Z" fill="var(--color-text-primary)"/><circle cx="7" cy="9.5" r="1.5" fill="var(--color-text-primary)"/></svg>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="var(--color-text-primary)" stroke-opacity="0.35"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="var(--color-text-primary)"/><path d="M22 4v4a2 2 0 000-4Z" fill="var(--color-text-primary)" opacity="0.4"/></svg>
+      </div>
+    </div>
+
+    <div class="screen-inner">
+      <div class="topnav">
+        <div class="topnav-row">
+          <div class="logo-row">
+            <div class="logo-icon">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 4L10 8L3 12V4Z" fill="white"/><rect x="11" y="4" width="2" height="8" rx="1" fill="white" opacity="0.7"/></svg>
+            </div>
+            <span class="logo-text">Visionix</span>
+            <span class="logo-badge">AI</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="notif-btn">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1a5 5 0 00-5 5v3l-1.5 2h13L13 9V6a5 5 0 00-5-5z" stroke="var(--color-text-secondary)" stroke-width="1.2"/><path d="M6.5 13a1.5 1.5 0 003 0" stroke="var(--color-text-secondary)" stroke-width="1.2"/></svg>
+            </div>
+            <div style="width:30px;height:30px;border-radius:50%;background:#AFA9EC;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#26215C">AC</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-area">
+        <div class="greeting">
+          <div class="greeting-name">Hey, Adaeze</div>
+          <div class="greeting-sub">Ready to create something?</div>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-num">24</div>
+            <div class="stat-label">Videos created</div>
+            <div class="stat-change">+6 this week</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">8</div>
+            <div class="stat-label">Credits left</div>
+            <div class="stat-label" style="color:#BA7517;margin-top:3px">Renews in 4 days</div>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="prog-top">
+            <span class="prog-title">Crypto beginner's guide</span>
+            <span class="prog-pct">73%</span>
+          </div>
+          <div class="prog-bar-bg"><div class="prog-bar" style="width:73%"></div></div>
+          <div class="prog-sub">Rendering audio track...</div>
+        </div>
+
+        <div class="section-hd">
+          <span class="section-title">Creation mode</span>
+        </div>
+        <div class="mode-scroll">
+          <div class="mode-card active" id="m-t2v" onclick="setMode('t2v')">
+            <div class="mode-icon" style="background:#EEEDFE">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="8" rx="1.5" stroke="#7F77DD" stroke-width="1.2"/><path d="M4 7h8M4 9h5" stroke="#7F77DD" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="mode-label">Text to video</div>
+            <div class="mode-desc">Script → video</div>
+          </div>
+          <div class="mode-card" id="m-p2v" onclick="setMode('p2v')">
+            <div class="mode-icon" style="background:#E1F5EE">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#1D9E75" stroke-width="1.2"/><path d="M5 9l2-2 2 2 3-3" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="mode-label">Photos + script</div>
+            <div class="mode-desc">Upload + narrate</div>
+          </div>
+          <div class="mode-card" id="m-yt" onclick="setMode('yt')">
+            <div class="mode-icon" style="background:#FAECE7">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="#D85A30" stroke-width="1.2"/><path d="M7 6.5l3 1.5-3 1.5V6.5Z" fill="#D85A30"/></svg>
+            </div>
+            <div class="mode-label">YouTube repurpose</div>
+            <div class="mode-desc">Link → new video</div>
+          </div>
+          <div class="mode-card" id="m-faceless" onclick="setMode('faceless')">
+            <div class="mode-icon" style="background:#FAEEDA">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="3" stroke="#BA7517" stroke-width="1.2"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#BA7517" stroke-width="1.2" stroke-linecap="round"/><path d="M6 6h4" stroke="#BA7517" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <div class="mode-label">Faceless video</div>
+            <div class="mode-desc">No face, full reach</div>
+          </div>
+        </div>
+
+        <div class="create-card">
+          <div id="f-t2v">
+            <div class="form-group">
+              <label class="form-label">Script / prompt</label>
+              <textarea rows="3" placeholder="Write your script or describe your video..."></textarea>
+            </div>
+            <div class="settings-2col">
+              <div class="form-group">
+                <label class="form-label">Voice</label>
+                <select><option>Pro male</option><option>Pro female</option><option>Casual</option></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Style</label>
+                <select><option>Cinematic</option><option>Minimal</option><option>Vibrant</option></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Video length</label>
+              <div class="len-row">
+                <div class="len-btn active" onclick="setLen(this)">Short</div>
+                <div class="len-btn" onclick="setLen(this)">Medium</div>
+                <div class="len-btn" onclick="setLen(this)">Long</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="f-p2v" style="display:none">
+            <div class="form-group">
+              <div class="upload-zone">
+                <div class="upload-icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 4l3-2 3 2" stroke="#7F77DD" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#7F77DD" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="upload-label">Tap to upload photos</div>
+                <div class="upload-sub">JPG, PNG — up to 20</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Narration / script</label>
+              <textarea rows="3" placeholder="Describe what the video should say..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Video length</label>
+              <div class="len-row">
+                <div class="len-btn active" onclick="setLen(this)">Short</div>
+                <div class="len-btn" onclick="setLen(this)">Medium</div>
+                <div class="len-btn" onclick="setLen(this)">Long</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="f-yt" style="display:none">
+            <div class="form-group">
+              <label class="form-label">YouTube link</label>
+              <input type="text" placeholder="https://youtube.com/watch?v=...">
+            </div>
+            <div class="form-group">
+              <div class="upload-zone">
+                <div class="upload-icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M5 4l3-2 3 2" stroke="#7F77DD" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="#7F77DD" stroke-width="1.2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="upload-label">Add your own photos (optional)</div>
+                <div class="upload-sub">Mixed into the output</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Custom script (optional)</label>
+              <textarea rows="2" placeholder="Override or add talking points..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Output format</label>
+              <div class="len-row">
+                <div class="len-btn active" onclick="setLen(this)">Short clip</div>
+                <div class="len-btn" onclick="setLen(this)">Full repurpose</div>
+                <div class="len-btn" onclick="setLen(this)">Series</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="f-faceless" style="display:none">
+            <div class="form-group">
+              <label class="form-label">Topic / script</label>
+              <textarea rows="3" placeholder="What is this video about?"></textarea>
+            </div>
+            <div class="settings-2col">
+              <div class="form-group">
+                <label class="form-label">Niche</label>
+                <select><option>Finance</option><option>Motivation</option><option>Tech</option><option>Health</option></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ratio</label>
+                <select><option>9:16 Reels</option><option>16:9 YouTube</option><option>1:1 Square</option></select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Video length</label>
+              <div class="len-row">
+                <div class="len-btn active" onclick="setLen(this)">Short</div>
+                <div class="len-btn" onclick="setLen(this)">Medium</div>
+                <div class="len-btn" onclick="setLen(this)">Long</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="gen-btn" onclick="sendPrompt('Show me the video generation progress screen for mobile')">Generate video</button>
+        </div>
+
+        <div class="section-hd">
+          <span class="section-title">Recent videos</span>
+          <span class="see-all">See all</span>
+        </div>
+        <div class="video-list">
+          <div class="video-row">
+            <div class="video-thumb thumb-purple" style="height:72px">
+              <span style="font-size:18px">📈</span>
+              <div class="play-circle"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 1L6.5 4L1.5 7V1Z" fill="#534AB7"/></svg></div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">5 stocks to watch in Q3</div>
+              <div class="video-meta"><span class="vtag tag-purple">Faceless</span><span class="vdur">2:14</span></div>
+            </div>
+          </div>
+          <div class="video-row">
+            <div class="video-thumb thumb-teal" style="height:72px">
+              <span style="font-size:18px">🧘</span>
+              <div class="play-circle"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 1L6.5 4L1.5 7V1Z" fill="#0F6E56"/></svg></div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">Morning routine for focus</div>
+              <div class="video-meta"><span class="vtag tag-teal">Text-to-video</span><span class="vdur">0:58</span></div>
+            </div>
+          </div>
+          <div class="video-row">
+            <div class="video-thumb thumb-coral" style="height:72px">
+              <span style="font-size:18px">🤖</span>
+              <div class="play-circle"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 1L6.5 4L1.5 7V1Z" fill="#993C1D"/></svg></div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">AI tools for creators 2025</div>
+              <div class="video-meta"><span class="vtag tag-coral">YT repurpose</span><span class="vdur">3:40</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <div class="nav-tab active">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" fill="#7F77DD"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="var(--color-text-tertiary)" stroke-width="1.2"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="var(--color-text-tertiary)" stroke-width="1.2"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="var(--color-text-tertiary)" stroke-width="1.2"/></svg>
+          <span class="nav-tab-label" style="color:#7F77DD">Studio</span>
+        </div>
+        <div class="nav-tab">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="var(--color-text-tertiary)" stroke-width="1.2"/><path d="M8 8l5 2.5L8 13V8Z" stroke="var(--color-text-tertiary)" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          <span class="nav-tab-label">Projects</span>
+        </div>
+        <div class="nav-tab">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="var(--color-text-tertiary)" stroke-width="1.2"/><path d="M7 7h6M7 10h4" stroke="var(--color-text-tertiary)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span class="nav-tab-label">Templates</span>
+        </div>
+        <div class="nav-tab">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="var(--color-text-tertiary)" stroke-width="1.2"/><path d="M3 17c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="var(--color-text-tertiary)" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span class="nav-tab-label">Profile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const modes=['t2v','p2v','yt','faceless'];
+function setMode(m){
+  modes.forEach(x=>{
+    document.getElementById('m-'+x).classList.remove('active');
+    document.getElementById('f-'+x).style.display='none';
+  });
+  document.getElementById('m-'+m).classList.add('active');
+  document.getElementById('f-'+m).style.display='block';
+}
+function setLen(el){
+  el.parentElement.querySelectorAll('.len-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
