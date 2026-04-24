@@ -28,7 +28,7 @@ export function Sidebar({ activeView, setActiveView }: SidebarProps) {
           <div className="w-7 h-7 rounded-lg bg-brand-primary flex items-center justify-center text-white">
             <PlaySquare size={16} />
           </div>
-          <span className="text-[15px] font-medium text-text-primary">Visionix</span>
+          <span className="text-[15px] font-medium text-text-primary">Aura</span>
           <span className="text-[10px] text-brand-primary bg-brand-light px-1.5 py-0.5 rounded ml-0.5">AI</span>
         </div>
       </div>

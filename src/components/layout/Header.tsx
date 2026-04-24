@@ -32,7 +32,7 @@ export function Header({ title, subtitle }: HeaderProps) {
             <div className="w-6 h-6 rounded-md bg-brand-primary flex items-center justify-center text-white">
               <PlaySquare size={14} />
             </div>
-            <span className="text-[14px] font-medium text-text-primary">Visionix</span>
+            <span className="text-[14px] font-medium text-text-primary">Aura</span>
             <span className="text-[9px] text-brand-hover bg-brand-light px-1.5 py-0.5 rounded ml-0.5">AI</span>
           </div>
           <div className="flex items-center gap-2">

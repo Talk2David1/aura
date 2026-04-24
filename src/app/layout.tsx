@@ -8,7 +8,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Visionix AI - Video Studio",
+  title: "Aura AI - Video Studio",
   description: "Create AI-powered faceless videos",
 };
 
