@@ -14,9 +14,11 @@ import { HistoryView } from "@/components/studio/HistoryView";
 import { UpgradePlanView } from "@/components/billing/UpgradePlanView";
 import { TemplatesView } from "@/components/library/TemplatesView";
 import { AssetsView } from "@/components/library/AssetsView";
+import { AuthView } from "@/components/auth/AuthView";
 
 export default function App() {
-  const [activeView, setActiveView] = useState("studio");
+  // Use auth as default to show off login flow, or studio
+  const [activeView, setActiveView] = useState("auth");
 
   const getHeaderTitles = () => {
     switch(activeView) {
@@ -33,6 +35,10 @@ export default function App() {
   };
 
   const { title, subtitle } = getHeaderTitles();
+
+  if (activeView === 'auth') {
+    return <AuthView onLogin={() => setActiveView('studio')} />;
+  }
 
   return (
     <div className="flex w-full h-[100dvh]">
@@ -61,7 +67,10 @@ export default function App() {
                 </div>
               </>
             ) : activeView === 'profile' ? (
-              <ProfileView onUpgrade={() => setActiveView('upgrade')} />
+              <ProfileView 
+                onUpgrade={() => setActiveView('upgrade')} 
+                onLogout={() => setActiveView('auth')} 
+              />
             ) : activeView === 'settings' ? (
               <SettingsView />
             ) : activeView === 'projects' ? (

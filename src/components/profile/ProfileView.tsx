@@ -1,7 +1,7 @@
 import React from 'react';
 import { User, Mail, CreditCard, LogOut, ArrowRight, ShieldCheck, PlaySquare, Calendar } from 'lucide-react';
 
-export function ProfileView({ onUpgrade }: { onUpgrade?: () => void }) {
+export function ProfileView({ onUpgrade, onLogout }: { onUpgrade?: () => void, onLogout?: () => void }) {
   return (
     <div className="bg-bg-primary md:border border-border-tertiary rounded-xl p-4 md:p-6 mb-8 max-w-4xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-8 border-b border-border-tertiary gap-4">
@@ -74,7 +74,10 @@ export function ProfileView({ onUpgrade }: { onUpgrade?: () => void }) {
               </div>
               <ArrowRight size={16} className="text-text-tertiary" />
             </div>
-            <div className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-coral-light group transition-colors rounded-b-xl">
+            <div 
+              onClick={onLogout}
+              className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-coral-light group transition-colors rounded-b-xl"
+            >
               <div className="flex items-center gap-2 text-coral-dark">
                 <LogOut size={16} />
                 <span className="text-[13px] font-medium">Log out of all devices</span>

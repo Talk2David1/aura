@@ -1,36 +1,85 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --color-brand-primary: #7F77DD;
   --color-brand-hover: #534AB7;
-  --color-brand-light: #EEEDFE;
+  --color-brand-light: var(--bg-brand-light);
   
   --color-success-primary: #1D9E75;
-  --color-success-light: #E1F5EE;
-  --color-success-dark: #0F6E56;
+  --color-success-light: var(--bg-success-light);
+  --color-success-dark: var(--text-success-dark);
   
   --color-coral-primary: #D85A30;
-  --color-coral-light: #FAECE7;
-  --color-coral-dark: #993C1D;
+  --color-coral-light: var(--bg-coral-light);
+  --color-coral-dark: var(--text-coral-dark);
   
   --color-amber-primary: #BA7517;
-  --color-amber-light: #FAEEDA;
+  --color-amber-light: var(--bg-amber-light);
 
-  --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #F8F9FB;
-  --color-bg-tertiary: #F1F2F6;
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
 
-  --color-text-primary: #111827;
-  --color-text-secondary: #4B5563;
-  --color-text-tertiary: #9CA3AF;
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
 
-  --color-border-secondary: #E5E7EB;
-  --color-border-tertiary: #F3F4F6;
+  --color-border-secondary: var(--border-secondary);
+  --color-border-tertiary: var(--border-tertiary);
 }
 
 :root {
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FB;
+  --bg-tertiary: #F1F2F6;
+
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
+
+  --border-secondary: #E5E7EB;
+  --border-tertiary: #F3F4F6;
+
+  --bg-brand-light: #EEEDFE;
+  
+  --bg-success-light: #E1F5EE;
+  --text-success-dark: #0F6E56;
+  
+  --bg-coral-light: #FAECE7;
+  --text-coral-dark: #993C1D;
+  
+  --bg-amber-light: #FAEEDA;
+
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.dark {
+  --bg-primary: #121212;
+  --bg-secondary: #1E1E1E;
+  --bg-tertiary: #0A0A0A;
+
+  --text-primary: #F9FAFB;
+  --text-secondary: #A1A1AA;
+  --text-tertiary: #71717A;
+
+  --border-secondary: #3F3F46;
+  --border-tertiary: #27272A;
+
+  --bg-brand-light: #1E1B4B;
+  
+  --bg-success-light: #064E3B;
+  --text-success-dark: #34D399;
+  
+  --bg-coral-light: #451A03;
+  --text-coral-dark: #FB923C;
+  
+  --bg-amber-light: #451A03;
+
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 body {

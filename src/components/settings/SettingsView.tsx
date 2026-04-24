@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, Bell, PlaySquare, Globe, Volume2, Save, Type } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export function SettingsView() {
   const [activeTab, setActiveTab] = useState('general');
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const tabs = [
     { id: 'general', label: 'General', icon: Settings },
@@ -65,15 +72,19 @@ export function SettingsView() {
               <div>
                 <label className="block text-[12px] text-text-secondary mb-1.5">Theme Preference</label>
                 <div className="flex bg-bg-secondary border border-border-tertiary p-1 rounded-xl w-fit">
-                  <button className="px-4 py-1.5 text-[12px] font-medium rounded-lg bg-white border border-border-tertiary shadow-sm text-text-primary scale-100 transition-all">
-                    Light
-                  </button>
-                  <button className="px-4 py-1.5 text-[12px] font-medium rounded-lg text-text-secondary hover:text-text-primary transition-all">
-                    Dark
-                  </button>
-                  <button className="px-4 py-1.5 text-[12px] font-medium rounded-lg text-text-secondary hover:text-text-primary transition-all">
-                    System
-                  </button>
+                  {['light', 'dark', 'system'].map((themeOption) => (
+                    <button 
+                      key={themeOption}
+                      onClick={() => setTheme(themeOption)}
+                      className={`px-4 py-1.5 text-[12px] font-medium rounded-lg capitalize transition-all ${
+                        theme === themeOption || (themeOption === 'system' && theme === undefined)
+                          ? 'bg-white dark:bg-bg-primary border border-border-tertiary shadow-sm text-text-primary'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      {themeOption}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
