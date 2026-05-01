@@ -4,9 +4,10 @@ import { Bell, PlaySquare } from 'lucide-react';
 interface HeaderProps {
   title: string;
   subtitle: string;
+  onViewAllProjects: () => void;
 }
 
-export function Header({ title, subtitle }: HeaderProps) {
+export function Header({ title, subtitle, onViewAllProjects }: HeaderProps) {
   return (
     <>
       {/* Desktop Header */}
@@ -16,12 +17,15 @@ export function Header({ title, subtitle }: HeaderProps) {
           <p className="text-[12px] text-text-tertiary mt-0.5">{subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="bg-transparent text-text-secondary border border-border-secondary px-3.5 py-1.5 rounded-lg text-[13px] hover:bg-bg-secondary transition-colors">
+          <button
+            onClick={onViewAllProjects}
+            className="bg-transparent text-text-secondary border border-border-secondary px-3.5 py-1.5 rounded-lg text-[13px] hover:bg-bg-secondary transition-colors"
+          >
             View all projects
           </button>
-          <button className="bg-brand-primary text-white border-none px-4 py-1.5 rounded-lg text-[13px] font-medium hover:bg-brand-hover transition-colors">
+          {/* <button className="bg-brand-primary text-white border-none px-4 py-1.5 rounded-lg text-[13px] font-medium hover:bg-brand-hover transition-colors">
             + New video
-          </button>
+          </button> */}
         </div>
       </header>
 

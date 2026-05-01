@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PlaySquare, Image as ImageIcon, Video, UserX, UploadCloud } from 'lucide-react';
+import { PlaySquare, Video, UploadCloud } from 'lucide-react';
 
 const modes = [
   { id: 't2v', icon: PlaySquare, label: 'Text to video', desc: 'Script → instant video', color: 'bg-brand-light', outline: 'border-brand-primary', textColor: 'text-brand-primary' },
-  { id: 'p2v', icon: ImageIcon, label: 'Photos + script', desc: 'Upload images & prompt', color: 'bg-success-light', outline: 'border-success-primary', textColor: 'text-success-primary' },
+  // { id: 'p2v', icon: ImageIcon, label: 'Photos + script', desc: 'Upload images & prompt', color: 'bg-success-light', outline: 'border-success-primary', textColor: 'text-success-primary' },
   { id: 'yt', icon: Video, label: 'YouTube repurpose', desc: 'Link → new video', color: 'bg-coral-light', outline: 'border-coral-primary', textColor: 'text-coral-primary' },
-  { id: 'faceless', icon: UserX, label: 'Faceless video', desc: 'No face, full content', color: 'bg-amber-light', outline: 'border-amber-primary', textColor: 'text-amber-primary' },
+  // { id: 'faceless', icon: UserX, label: 'Faceless video', desc: 'No face, full content', color: 'bg-amber-light', outline: 'border-amber-primary', textColor: 'text-amber-primary' },
 ];
 
 export function CreationForm() {

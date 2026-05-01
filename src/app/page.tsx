@@ -46,7 +46,11 @@ export default function App() {
       <Sidebar activeView={activeView} setActiveView={setActiveView} />
 
       <main className="flex-1 flex flex-col w-full h-full min-w-0 bg-bg-tertiary">
-        <Header title={title} subtitle={subtitle} />
+        <Header
+          title={title}
+          subtitle={subtitle}
+          onViewAllProjects={() => setActiveView('projects')}
+        />
 
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto w-full">
