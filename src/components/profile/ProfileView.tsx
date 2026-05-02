@@ -118,13 +118,6 @@ export function ProfileView({
               </div>
               <ArrowRight size={16} className="text-text-tertiary" />
             </div>
-            <div className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-bg-secondary transition-colors">
-              <div>
-                <div className="text-[13px] font-medium text-text-primary">Two-Factor Auth</div>
-                <div className="text-[11px] text-text-tertiary mt-0.5">Configure with your provider</div>
-              </div>
-              <ArrowRight size={16} className="text-text-tertiary" />
-            </div>
             <div
               onClick={handleLogout}
               className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-coral-light group transition-colors rounded-b-xl"
