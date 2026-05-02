@@ -11,13 +11,24 @@ type ResetVariant = 'forgot' | 'reset';
 export function ForgotPasswordFlow({
   onBack,
   onSuccess,
+  initialVariant = 'forgot',
+  lockVariant = false,
+  initialEmail = '',
+  firstStepBackLabel = 'Back to sign in',
 }: {
   onBack: () => void;
   onSuccess: () => void;
+  /** When `lockVariant` is true, only this alias is used (e.g. `reset` for `/auth/reset-password/*`). */
+  initialVariant?: ResetVariant;
+  /** Hide forgot vs reset toggle; API routes follow `initialVariant` only. */
+  lockVariant?: boolean;
+  initialEmail?: string;
+  /** Label for the back control on the first step (email). */
+  firstStepBackLabel?: string;
 }) {
-  const [variant, setVariant] = useState<ResetVariant>('forgot');
+  const [variant, setVariant] = useState<ResetVariant>(initialVariant);
   const [step, setStep] = useState<Step>('email');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [password, setPassword] = useState('');
@@ -116,15 +127,18 @@ export function ForgotPasswordFlow({
         className="flex items-center gap-1 text-[12px] text-text-tertiary hover:text-text-primary mb-4"
       >
         <ArrowLeft size={14} />
-        {step === 'email' ? 'Back to sign in' : 'Back'}
+        {step === 'email' ? firstStepBackLabel : 'Back'}
       </button>
 
       <h1 className="text-[22px] font-medium text-text-primary tracking-tight mb-1">Reset password</h1>
       <p className="text-[13px] text-text-tertiary mb-4">
-        {step === 'email' && 'Choose which API alias your server uses (same OTP flow).'}
+        {step === 'email' &&
+          (lockVariant
+            ? 'Uses POST /auth/reset-password (request OTP, verify, then set a new password).'
+            : 'Choose which API alias your server uses (same OTP flow).')}
       </p>
 
-      {step === 'email' ? (
+      {step === 'email' && !lockVariant ? (
         <div className="flex gap-2 mb-4">
           <button
             type="button"

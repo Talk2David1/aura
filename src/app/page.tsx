@@ -15,12 +15,14 @@ import { UpgradePlanView } from "@/components/billing/UpgradePlanView";
 import { TemplatesView } from "@/components/library/TemplatesView";
 import { AssetsView } from "@/components/library/AssetsView";
 import { AuthView } from "@/components/auth/AuthView";
+import { ForgotPasswordFlow } from "@/components/auth/ForgotPasswordFlow";
 import { getAccessToken } from "@/lib/api/client";
 import { getStoredUser } from "@/lib/api/auth";
 
 export default function App() {
   const [activeView, setActiveView] = useState("auth");
   const [bootstrapped, setBootstrapped] = useState(false);
+  const [resetPasswordPrefillEmail, setResetPasswordPrefillEmail] = useState<string | undefined>();
 
   useLayoutEffect(() => {
     if (getAccessToken()) setActiveView("studio");
@@ -51,6 +53,30 @@ export default function App() {
 
   if (activeView === 'auth') {
     return <AuthView onLogin={() => setActiveView('studio')} />;
+  }
+
+  if (activeView === 'reset_password') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-bg-tertiary overflow-y-auto py-6 md:py-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-primary/20 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-coral-primary/10 rounded-full blur-[100px] pointer-events-none" />
+        <ForgotPasswordFlow
+          key={resetPasswordPrefillEmail ?? 'reset-password'}
+          initialVariant="reset"
+          lockVariant
+          initialEmail={resetPasswordPrefillEmail ?? ''}
+          firstStepBackLabel="Back to profile"
+          onBack={() => {
+            setResetPasswordPrefillEmail(undefined);
+            setActiveView('profile');
+          }}
+          onSuccess={() => {
+            setResetPasswordPrefillEmail(undefined);
+            setActiveView('studio');
+          }}
+        />
+      </div>
+    );
   }
 
   return (
@@ -84,6 +110,10 @@ export default function App() {
               <ProfileView
                 onUpgrade={() => setActiveView('upgrade')}
                 onLogout={() => setActiveView('auth')}
+                onManagePassword={(email) => {
+                  setResetPasswordPrefillEmail(email || undefined);
+                  setActiveView('reset_password');
+                }}
               />
             ) : activeView === 'settings' ? (
               <SettingsView />

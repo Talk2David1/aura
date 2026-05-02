@@ -15,9 +15,12 @@ function initials(name: string): string {
 export function ProfileView({
   onUpgrade,
   onLogout,
+  onManagePassword,
 }: {
   onUpgrade?: () => void;
   onLogout?: () => void;
+  /** Opens reset-password flow; receives account email for prefill when known. */
+  onManagePassword?: (email: string) => void;
 }) {
   const [profile, setProfile] = useState<StudioProfile | null>(null);
 
@@ -111,13 +114,17 @@ export function ProfileView({
             Security & Account
           </h3>
           <div className="border border-border-tertiary rounded-xl divide-y divide-border-tertiary">
-            <div className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-bg-secondary transition-colors rounded-t-xl">
+            <button
+              type="button"
+              onClick={() => onManagePassword?.(profile?.email?.trim() ?? '')}
+              className="w-full p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-bg-secondary transition-colors rounded-t-xl text-left"
+            >
               <div>
                 <div className="text-[13px] font-medium text-text-primary">Password</div>
-                <div className="text-[11px] text-text-tertiary mt-0.5">Manage in AuraVid settings</div>
+                <div className="text-[11px] text-text-tertiary mt-0.5">Reset with email code (/auth/reset-password)</div>
               </div>
-              <ArrowRight size={16} className="text-text-tertiary" />
-            </div>
+              <ArrowRight size={16} className="text-text-tertiary shrink-0" />
+            </button>
             <div
               onClick={handleLogout}
               className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-coral-light group transition-colors rounded-b-xl"
