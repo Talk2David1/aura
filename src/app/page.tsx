@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Header } from "@/components/layout/Header";
@@ -15,10 +15,17 @@ import { UpgradePlanView } from "@/components/billing/UpgradePlanView";
 import { TemplatesView } from "@/components/library/TemplatesView";
 import { AssetsView } from "@/components/library/AssetsView";
 import { AuthView } from "@/components/auth/AuthView";
+import { getAccessToken } from "@/lib/api/client";
+import { getStoredUser } from "@/lib/api/auth";
 
 export default function App() {
-  // Use auth as default to show off login flow, or studio
   const [activeView, setActiveView] = useState("auth");
+  const [bootstrapped, setBootstrapped] = useState(false);
+
+  useLayoutEffect(() => {
+    if (getAccessToken()) setActiveView("studio");
+    setBootstrapped(true);
+  }, []);
 
   const getHeaderTitles = () => {
     switch(activeView) {
@@ -35,6 +42,12 @@ export default function App() {
   };
 
   const { title, subtitle } = getHeaderTitles();
+  const user = getStoredUser();
+  const firstName = user?.displayName?.split(/\s+/)[0] ?? "there";
+
+  if (!bootstrapped) {
+    return null;
+  }
 
   if (activeView === 'auth') {
     return <AuthView onLogin={() => setActiveView('studio')} />;
@@ -42,7 +55,6 @@ export default function App() {
 
   return (
     <div className="flex w-full h-[100dvh]">
-      {/* Desktop Sidebar */}
       <Sidebar activeView={activeView} setActiveView={setActiveView} />
 
       <main className="flex-1 flex flex-col w-full h-full min-w-0 bg-bg-tertiary">
@@ -52,13 +64,11 @@ export default function App() {
           onViewAllProjects={() => setActiveView('projects')}
         />
 
-        {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto w-full">
           <div className="max-w-6xl mx-auto p-4 md:p-6 pb-[90px] md:pb-6">
-            
-            {/* Mobile Greeting (hidden on desktop) */}
+
             <div className={`md:hidden mb-4 mt-2 ${activeView !== 'studio' ? 'hidden' : ''}`}>
-              <h2 className="text-[18px] font-medium text-text-primary">Hey, Adaeze</h2>
+              <h2 className="text-[18px] font-medium text-text-primary">Hey, {firstName}</h2>
               <p className="text-[12px] text-text-tertiary mt-0.5">Ready to create something?</p>
             </div>
 
@@ -71,9 +81,9 @@ export default function App() {
                 </div>
               </>
             ) : activeView === 'profile' ? (
-              <ProfileView 
-                onUpgrade={() => setActiveView('upgrade')} 
-                onLogout={() => setActiveView('auth')} 
+              <ProfileView
+                onUpgrade={() => setActiveView('upgrade')}
+                onLogout={() => setActiveView('auth')}
               />
             ) : activeView === 'settings' ? (
               <SettingsView />
@@ -95,7 +105,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Mobile Bottom Nav */}
         <BottomNav activeView={activeView} setActiveView={setActiveView} />
       </main>
     </div>

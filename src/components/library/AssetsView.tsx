@@ -9,18 +9,24 @@ export function AssetsView() {
   const [activeFilter, setActiveFilter] = useState<'all' | 'image' | 'audio' | 'video'>('all');
 
   useEffect(() => {
+    let cancelled = false;
     const fetchAssets = async () => {
+      setIsLoading(true);
       try {
-        const data = await libraryService.getAssets();
-        setAssets(data);
+        const data = await libraryService.getAssets(activeFilter === 'all' ? undefined : activeFilter);
+        if (!cancelled) setAssets(data);
       } catch (error) {
         console.error("Failed to fetch assets", error);
+        if (!cancelled) setAssets([]);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
     fetchAssets();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [activeFilter]);
 
   const handleDelete = async (id: string) => {
     // Optimistic UI update
@@ -31,10 +37,6 @@ export function AssetsView() {
       // Handle error natively
     }
   };
-
-  const filteredAssets = activeFilter === 'all' 
-    ? assets 
-    : assets.filter(a => a.type === activeFilter);
 
   const getAssetIcon = (type: Asset['type']) => {
     switch(type) {
@@ -95,17 +97,22 @@ export function AssetsView() {
         <div className="flex items-center justify-center p-12 text-text-tertiary text-[13px]">
           Loading assets...
         </div>
-      ) : filteredAssets.length === 0 ? (
+      ) : assets.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-10 border border-border-tertiary border-dashed rounded-xl bg-bg-secondary text-text-tertiary">
           <File size={32} className="mb-3 opacity-50" />
           <p className="text-[13px]">No {activeFilter !== 'all' ? activeFilter : ''} assets found in your library.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {filteredAssets.map(asset => (
+          {assets.map(asset => (
             <div key={asset.id} className="group border border-border-tertiary rounded-xl overflow-hidden hover:border-[#AFA9EC] transition-colors bg-bg-primary">
-              <div className="aspect-square bg-bg-secondary flex items-center justify-center relative break-all p-2 text-center text-4xl">
-                {asset.url}
+              <div className="aspect-square bg-bg-secondary flex items-center justify-center relative break-all p-2 text-center text-4xl overflow-hidden">
+                {asset.url.startsWith('http') ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={asset.url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  asset.url
+                )}
                 <div className="absolute top-2 left-2 bg-white/90 backdrop-blur border border-border-tertiary rounded-md p-1.5 shadow-sm inline-flex">
                   {getAssetIcon(asset.type)}
                 </div>

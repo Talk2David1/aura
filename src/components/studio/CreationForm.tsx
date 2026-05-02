@@ -1,18 +1,108 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PlaySquare, Video, UploadCloud } from 'lucide-react';
+import { Loader2, PlaySquare, UploadCloud, UserX, Video } from 'lucide-react';
+import { ApiError } from '@/lib/api/client';
+import { videoStudioService } from '@/lib/api/video-studio';
 
 const modes = [
   { id: 't2v', icon: PlaySquare, label: 'Text to video', desc: 'Script → instant video', color: 'bg-brand-light', outline: 'border-brand-primary', textColor: 'text-brand-primary' },
-  // { id: 'p2v', icon: ImageIcon, label: 'Photos + script', desc: 'Upload images & prompt', color: 'bg-success-light', outline: 'border-success-primary', textColor: 'text-success-primary' },
   { id: 'yt', icon: Video, label: 'YouTube repurpose', desc: 'Link → new video', color: 'bg-coral-light', outline: 'border-coral-primary', textColor: 'text-coral-primary' },
-  // { id: 'faceless', icon: UserX, label: 'Faceless video', desc: 'No face, full content', color: 'bg-amber-light', outline: 'border-amber-primary', textColor: 'text-amber-primary' },
+  { id: 'faceless', icon: UserX, label: 'Faceless video', desc: 'No face, full content', color: 'bg-amber-light', outline: 'border-amber-primary', textColor: 'text-amber-primary' },
 ];
+
+const VOICES = [
+  { id: 'professional_male', label: 'Professional male' },
+  { id: 'professional_female', label: 'Professional female' },
+  { id: 'casual_upbeat', label: 'Casual upbeat' },
+  { id: 'documentary', label: 'Documentary' },
+] as const;
+
+const VISUALS = [
+  { id: 'cinematic', label: 'Cinematic' },
+  { id: 'minimal', label: 'Minimal' },
+  { id: 'vibrant', label: 'Vibrant' },
+  { id: 'news_style', label: 'News-style' },
+] as const;
+
+const NICHES = [
+  { id: 'finance', label: 'Finance' },
+  { id: 'motivation', label: 'Motivation' },
+  { id: 'tech', label: 'Tech' },
+  { id: 'health', label: 'Health' },
+  { id: 'lifestyle', label: 'Lifestyle' },
+] as const;
+
+const ASPECTS = [
+  { id: '9:16', label: '9:16 (Reels/TikTok)' },
+  { id: '16:9', label: '16:9 (YouTube)' },
+  { id: '1:1', label: '1:1 (Square)' },
+] as const;
 
 export function CreationForm() {
   const [activeMode, setActiveMode] = useState('t2v');
   const [activeLength, setActiveLength] = useState('short');
+  const [prompt, setPrompt] = useState('');
+  const [voiceStyle, setVoiceStyle] = useState<string>(VOICES[0].id);
+  const [visualStyle, setVisualStyle] = useState<string>(VISUALS[0].id);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [customScript, setCustomScript] = useState('');
+  const [facelessTopic, setFacelessTopic] = useState('');
+  const [niche, setNiche] = useState<string>(NICHES[0].id);
+  const [aspectRatio, setAspectRatio] = useState<string>(ASPECTS[0].id);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    setMessage(null);
+    setSubmitting(true);
+    try {
+      const base = { videoLength: activeLength };
+      let body: Record<string, unknown>;
+
+      if (activeMode === 't2v') {
+        body = {
+          ...base,
+          mode: 'text_to_video',
+          prompt: prompt.trim(),
+          voiceStyle,
+          visualStyle,
+        };
+      } else if (activeMode === 'yt') {
+        body = {
+          ...base,
+          mode: 'youtube_repurpose',
+          youtubeUrl: youtubeUrl.trim(),
+        };
+        const cs = customScript.trim();
+        if (cs) body.customScript = cs;
+      } else if (activeMode === 'faceless') {
+        body = {
+          ...base,
+          mode: 'faceless_video',
+          topic: facelessTopic.trim(),
+          niche,
+          aspectRatio,
+        };
+      } else {
+        setMessage('Unknown creation mode.');
+        setSubmitting(false);
+        return;
+      }
+
+      const created = await videoStudioService.createProject(body);
+      setMessage(`Project started: ${created.title || created.id}`);
+      setPrompt('');
+      setYoutubeUrl('');
+      setCustomScript('');
+      setFacelessTopic('');
+    } catch (e) {
+      const msg = e instanceof ApiError ? e.message : 'Could not start generation';
+      setMessage(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-bg-primary md:border border-border-tertiary rounded-xl md:p-5 p-3.5 mb-4 md:mb-0">
@@ -21,7 +111,7 @@ export function CreationForm() {
         Creation mode
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-4 md:mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 md:mb-5">
         {modes.map((mode) => {
           const isSelected = activeMode === mode.id;
           return (
@@ -47,51 +137,43 @@ export function CreationForm() {
           <>
             <div>
               <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Script / prompt</label>
-              <textarea 
-                rows={4} 
+              <textarea
+                rows={4}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Write your video script or describe what you want to create..."
                 className="w-full text-[13px] p-2.5 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC] resize-none"
-              ></textarea>
+              />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Voice style</label>
-                <select className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]">
-                  <option>Professional male</option>
-                  <option>Professional female</option>
-                  <option>Casual upbeat</option>
-                  <option>Documentary</option>
+                <select
+                  value={voiceStyle}
+                  onChange={(e) => setVoiceStyle(e.target.value)}
+                  className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]"
+                >
+                  {VOICES.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Visual style</label>
-                <select className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]">
-                  <option>Cinematic</option>
-                  <option>Minimal</option>
-                  <option>Vibrant</option>
-                  <option>News-style</option>
+                <select
+                  value={visualStyle}
+                  onChange={(e) => setVisualStyle(e.target.value)}
+                  className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]"
+                >
+                  {VISUALS.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.label}
+                    </option>
+                  ))}
                 </select>
               </div>
-            </div>
-          </>
-        )}
-
-        {activeMode === 'p2v' && (
-          <>
-            <div className="border border-dashed border-border-secondary rounded-xl p-4 md:p-6 text-center bg-bg-secondary cursor-pointer hover:border-brand-primary transition-colors">
-              <div className="w-8 h-8 md:w-9 md:h-9 mx-auto mb-1.5 md:mb-2 rounded-lg bg-brand-light flex items-center justify-center">
-                <UploadCloud size={18} className="text-brand-primary" />
-              </div>
-              <div className="text-[12px] md:text-[13px] text-text-secondary">Drop photos here or click to upload</div>
-              <div className="text-[10px] md:text-[11px] text-text-tertiary mt-1">JPG, PNG — up to 20 images</div>
-            </div>
-            <div>
-              <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Script / narration</label>
-              <textarea 
-                rows={3} 
-                placeholder="Describe what the video should say or narrate..."
-                className="w-full text-[13px] p-2.5 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC] resize-none"
-              ></textarea>
             </div>
           </>
         )}
@@ -100,8 +182,10 @@ export function CreationForm() {
           <>
             <div>
               <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">YouTube video link</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
+                value={youtubeUrl}
+                onChange={(e) => setYoutubeUrl(e.target.value)}
                 placeholder="https://youtube.com/watch?v=..."
                 className="w-full text-[13px] p-2.5 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]"
               />
@@ -115,11 +199,13 @@ export function CreationForm() {
             </div>
             <div>
               <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Custom script (optional)</label>
-              <textarea 
-                rows={2} 
+              <textarea
+                rows={2}
+                value={customScript}
+                onChange={(e) => setCustomScript(e.target.value)}
                 placeholder="Override the original script or add talking points..."
                 className="w-full text-[13px] p-2.5 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC] resize-none"
-              ></textarea>
+              />
             </div>
           </>
         )}
@@ -128,29 +214,41 @@ export function CreationForm() {
           <>
             <div>
               <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Topic / script</label>
-              <textarea 
-                rows={3} 
+              <textarea
+                rows={3}
+                value={facelessTopic}
+                onChange={(e) => setFacelessTopic(e.target.value)}
                 placeholder="What is this video about? Describe the topic or paste your script..."
                 className="w-full text-[13px] p-2.5 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC] resize-none"
-              ></textarea>
+              />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Niche</label>
-                <select className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]">
-                  <option>Finance</option>
-                  <option>Motivation</option>
-                  <option>Tech</option>
-                  <option>Health</option>
-                  <option>Lifestyle</option>
+                <select
+                  value={niche}
+                  onChange={(e) => setNiche(e.target.value)}
+                  className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]"
+                >
+                  {NICHES.map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Aspect ratio</label>
-                <select className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]">
-                  <option>9:16 (Reels/TikTok)</option>
-                  <option>16:9 (YouTube)</option>
-                  <option>1:1 (Square)</option>
+                <select
+                  value={aspectRatio}
+                  onChange={(e) => setAspectRatio(e.target.value)}
+                  className="w-full text-[13px] p-2 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC]"
+                >
+                  {ASPECTS.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.label}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -163,14 +261,14 @@ export function CreationForm() {
             {[
               { id: 'short', label: 'Short (15-60s)' },
               { id: 'medium', label: 'Medium (1-3m)' },
-              { id: 'long', label: 'Long (3-10m)' }
-            ].map(len => (
-              <div 
+              { id: 'long', label: 'Long (3-10m)' },
+            ].map((len) => (
+              <div
                 key={len.id}
                 onClick={() => setActiveLength(len.id)}
                 className={`py-1.5 md:py-2 px-1 text-center border rounded-lg text-[10px] md:text-[12px] cursor-pointer transition-colors ${
-                  activeLength === len.id 
-                    ? 'border-brand-primary text-brand-hover bg-brand-light font-medium' 
+                  activeLength === len.id
+                    ? 'border-brand-primary text-brand-hover bg-brand-light font-medium'
                     : 'border-border-tertiary text-text-secondary bg-bg-secondary'
                 }`}
               >
@@ -181,7 +279,19 @@ export function CreationForm() {
         </div>
       </div>
 
-      <button className="w-full py-2.5 md:py-3 bg-brand-primary text-white border-none rounded-xl text-[14px] font-medium hover:bg-brand-hover transition-colors mt-4 md:mt-2">
+      {message ? (
+        <p className="text-[12px] mt-3 text-text-secondary border border-border-tertiary rounded-lg px-3 py-2 bg-bg-secondary">
+          {message}
+        </p>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={handleGenerate}
+        disabled={submitting}
+        className="w-full py-2.5 md:py-3 bg-brand-primary text-white border-none rounded-xl text-[14px] font-medium hover:bg-brand-hover transition-colors mt-4 md:mt-2 flex items-center justify-center gap-2 disabled:opacity-70"
+      >
+        {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
         Generate video ↗
       </button>
     </div>

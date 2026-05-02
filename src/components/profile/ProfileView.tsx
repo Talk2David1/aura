@@ -1,25 +1,74 @@
-import React from 'react';
-import { User, Mail, CreditCard, LogOut, ArrowRight, ShieldCheck, PlaySquare, Calendar } from 'lucide-react';
+"use client";
 
-export function ProfileView({ onUpgrade, onLogout }: { onUpgrade?: () => void, onLogout?: () => void }) {
+import React, { useEffect, useState } from 'react';
+import { Mail, CreditCard, LogOut, ArrowRight, ShieldCheck } from 'lucide-react';
+import { clearSession } from '@/lib/api/auth';
+import { studioService, type StudioProfile } from '@/lib/api/studio';
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export function ProfileView({
+  onUpgrade,
+  onLogout,
+}: {
+  onUpgrade?: () => void;
+  onLogout?: () => void;
+}) {
+  const [profile, setProfile] = useState<StudioProfile | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const p = await studioService.getProfile();
+        if (!cancelled) setProfile(p);
+      } catch {
+        if (!cancelled) setProfile(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const fullName = profile?.fullName ?? '—';
+  const email = profile?.email ?? '—';
+  const planName = profile?.planName ?? '—';
+  const memberSince = profile?.memberSince
+    ? new Date(profile.memberSince).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+    : '—';
+  const monthly = profile?.monthlyCredits ?? 0;
+  const left = profile?.creditsLeft ?? 0;
+  const pct = monthly > 0 ? Math.min(100, Math.round((left / monthly) * 100)) : 0;
+
+  const handleLogout = () => {
+    clearSession();
+    onLogout?.();
+  };
+
   return (
     <div className="bg-bg-primary md:border border-border-tertiary rounded-xl p-4 md:p-6 mb-8 max-w-4xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-8 border-b border-border-tertiary gap-4">
         <div className="flex items-center gap-4 md:gap-6">
           <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#AFA9EC] flex items-center justify-center text-[24px] md:text-[28px] font-medium text-[#26215C]">
-            AC
+            {initials(fullName)}
           </div>
           <div>
-            <h2 className="text-[20px] md:text-[24px] font-medium text-text-primary">Adaeze C.</h2>
+            <h2 className="text-[20px] md:text-[24px] font-medium text-text-primary">{fullName}</h2>
             <div className="flex items-center gap-2 mt-1">
               <Mail size={14} className="text-text-tertiary" />
-              <span className="text-[13px] text-text-secondary">adaeze@example.com</span>
+              <span className="text-[13px] text-text-secondary">{email}</span>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <span className="text-[11px] font-medium text-amber-primary bg-amber-light px-2 py-0.5 rounded-full uppercase tracking-wide">
-                Pro Plan
+                {planName}
               </span>
-              <span className="text-[12px] text-text-tertiary hidden md:inline">• Member since Oct 2024</span>
+              <span className="text-[12px] text-text-tertiary hidden md:inline">• Member since {memberSince}</span>
             </div>
           </div>
         </div>
@@ -39,13 +88,15 @@ export function ProfileView({ onUpgrade, onLogout }: { onUpgrade?: () => void, o
           <div className="bg-bg-secondary border border-border-tertiary rounded-xl p-4">
             <div className="flex justify-between items-center mb-4">
               <span className="text-[13px] font-medium text-text-primary">Monthly Credits</span>
-              <span className="text-[13px] font-medium text-amber-primary">8 / 100 left</span>
+              <span className="text-[13px] font-medium text-amber-primary">
+                {left} / {monthly || '—'} left
+              </span>
             </div>
             <div className="h-1.5 bg-border-tertiary rounded-full mb-3">
-              <div className="h-full bg-amber-primary rounded-full" style={{ width: '92%' }}></div>
+              <div className="h-full bg-amber-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
             </div>
-            <p className="text-[11px] text-text-tertiary mb-4">Your plan renews in 4 days. Credits do not roll over.</p>
-            <button 
+            <p className="text-[11px] text-text-tertiary mb-4">Credits usage from your AuraVid plan.</p>
+            <button
               onClick={onUpgrade}
               className="w-full py-2 bg-brand-light text-brand-hover rounded-lg text-[13px] font-medium hover:bg-[#DEDCFC] transition-colors"
             >
@@ -63,19 +114,19 @@ export function ProfileView({ onUpgrade, onLogout }: { onUpgrade?: () => void, o
             <div className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-bg-secondary transition-colors rounded-t-xl">
               <div>
                 <div className="text-[13px] font-medium text-text-primary">Password</div>
-                <div className="text-[11px] text-text-tertiary mt-0.5">Last changed 3 months ago</div>
+                <div className="text-[11px] text-text-tertiary mt-0.5">Manage in AuraVid settings</div>
               </div>
               <ArrowRight size={16} className="text-text-tertiary" />
             </div>
             <div className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-bg-secondary transition-colors">
               <div>
                 <div className="text-[13px] font-medium text-text-primary">Two-Factor Auth</div>
-                <div className="text-[11px] text-text-tertiary mt-0.5">Currently enabled</div>
+                <div className="text-[11px] text-text-tertiary mt-0.5">Configure with your provider</div>
               </div>
               <ArrowRight size={16} className="text-text-tertiary" />
             </div>
-            <div 
-              onClick={onLogout}
+            <div
+              onClick={handleLogout}
               className="p-3 md:p-4 flex justify-between items-center cursor-pointer hover:bg-coral-light group transition-colors rounded-b-xl"
             >
               <div className="flex items-center gap-2 text-coral-dark">

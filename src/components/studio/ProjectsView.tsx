@@ -72,8 +72,13 @@ export function ProjectsView() {
               <div key={project.id} className="group border border-border-tertiary rounded-xl overflow-hidden hover:border-[#AFA9EC] transition-all bg-bg-primary relative">
                 
                 {/* Thumbnail Area */}
-                <div className="aspect-video bg-bg-secondary flex items-center justify-center relative">
-                  <span className="text-[32px]">{project.thumbnail || '🎬'}</span>
+                <div className="aspect-video bg-bg-secondary flex items-center justify-center relative overflow-hidden">
+                  {project.thumbnail?.startsWith('http') ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={project.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[32px]">{project.thumbnail || '🎬'}</span>
+                  )}
                   
                   {project.status === 'completed' && (
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

@@ -1,67 +1,105 @@
 import { apiClient } from './client';
-import { Template, Asset } from '@/types';
+import type { Asset, Template } from '@/types';
 
-const MOCK_TEMPLATES: Template[] = [
-  { id: 't1', name: 'Tech Startup Explainer', category: 'Explainer', thumbnail: '🚀', aspectRatio: '16:9' },
-  { id: 't2', name: 'Motivational Morning', category: 'Social Media', thumbnail: '☀️', aspectRatio: '9:16' },
-  { id: 't3', name: 'Real Estate Tour', category: 'Corporate', thumbnail: '🏠', aspectRatio: '16:9' },
-  { id: 't4', name: 'Crypto Daily News', category: 'Finance', thumbnail: '📊', aspectRatio: '9:16' },
-  { id: 't5', name: 'Instagram Product Showcase', category: 'Social Media', thumbnail: '🛍️', aspectRatio: '1:1' },
-  { id: 't6', name: 'Fitness 30-Day Challenge', category: 'Lifestyle', thumbnail: '🏋️', aspectRatio: '9:16' }
-];
+export interface TemplatesPayload {
+  categories: string[];
+  templates: Template[];
+}
 
-const MOCK_ASSETS: Asset[] = [
-  { id: 'a1', name: 'Corporate_Background.mp3', type: 'audio', url: '🎵', size: '3.4 MB', addedAt: '2026-04-22T08:15:00Z' },
-  { id: 'a2', name: 'Company_Logo.png', type: 'image', url: '🖼️', size: '1.2 MB', addedAt: '2026-04-10T14:30:00Z' },
-  { id: 'a3', name: 'Product_Shot_01.jpg', type: 'image', url: '🖼️', size: '2.8 MB', addedAt: '2026-04-18T09:45:00Z' },
-  { id: 'a4', name: 'Intro_Stinger.mp4', type: 'video', url: '🎬', size: '15.6 MB', addedAt: '2026-03-05T11:20:00Z' }
-];
+interface ApiTemplatesResponse {
+  categories: string[];
+  templates: Array<{
+    id: string;
+    title: string;
+    category: string;
+    duration: string;
+    thumbnail: string;
+  }>;
+}
+
+interface ApiAssetRow {
+  id: string;
+  name: string;
+  type: string;
+  sizeBytes: number;
+  url: string;
+  createdAt: string;
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const kb = bytes / 1024;
+  if (kb < 1024) return `${kb.toFixed(1)} KB`;
+  return `${(kb / 1024).toFixed(1)} MB`;
+}
+
+function mapApiTemplate(row: ApiTemplatesResponse['templates'][0]): Template {
+  return {
+    id: row.id,
+    name: row.title,
+    category: row.category,
+    thumbnail: row.thumbnail,
+    aspectRatio: '16:9',
+  };
+}
+
+function mapApiAsset(row: ApiAssetRow): Asset {
+  const t = row.type as Asset['type'];
+  const type: Asset['type'] = t === 'audio' || t === 'video' || t === 'image' ? t : 'image';
+  return {
+    id: row.id,
+    name: row.name,
+    type,
+    url: row.url,
+    size: formatBytes(row.sizeBytes ?? 0),
+    addedAt: row.createdAt,
+  };
+}
 
 export const libraryService = {
-  /**
-   * Fetch templates available to the user
-   */
-  async getTemplates(): Promise<Template[]> {
-    await apiClient('/library/templates');
-    return MOCK_TEMPLATES;
-  },
-
-  /**
-   * Fetch user's uploaded assets
-   */
-  async getAssets(): Promise<Asset[]> {
-    await apiClient('/library/assets');
-    return MOCK_ASSETS;
-  },
-
-  /**
-   * Upload an asset
-   */
-  async uploadAsset(file: File): Promise<Asset> {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    // Simulate network upload
-    await apiClient('/library/assets', {
-      method: 'POST',
-      body: formData
-    });
-
+  async getTemplates(options?: { category?: string; search?: string }): Promise<TemplatesPayload> {
+    const q = new URLSearchParams();
+    if (options?.category && options.category !== 'all') q.set('category', options.category);
+    if (options?.search?.trim()) q.set('search', options.search.trim());
+    const qs = q.toString();
+    const raw = await apiClient<ApiTemplatesResponse>(`/studio/templates${qs ? `?${qs}` : ''}`);
     return {
-      id: `a${Date.now()}`,
-      name: file.name,
-      type: file.type.includes('image') ? 'image' : file.type.includes('audio') ? 'audio' : 'video',
-      url: file.type.includes('image') ? '🖼️' : '📁',
-      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-      addedAt: new Date().toISOString()
+      categories: raw.categories?.length ? raw.categories : ['all'],
+      templates: (raw.templates ?? []).map(mapApiTemplate),
     };
   },
 
-  /**
-   * Delete an asset
-   */
+  async getAssets(type?: string): Promise<Asset[]> {
+    const qs = type && type !== 'all' ? `?type=${encodeURIComponent(type)}` : '';
+    const rows = await apiClient<ApiAssetRow[]>(`/studio/assets${qs}`);
+    return rows.map(mapApiAsset);
+  },
+
+  async uploadAsset(file: File): Promise<Asset> {
+    const type: Asset['type'] = file.type.startsWith('image/')
+      ? 'image'
+      : file.type.startsWith('audio/')
+        ? 'audio'
+        : 'video';
+
+    const created = await apiClient<ApiAssetRow>('/studio/assets', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: file.name,
+        type,
+        sizeBytes: file.size,
+        url: typeof URL !== 'undefined' ? URL.createObjectURL(file) : '',
+      }),
+    });
+    return mapApiAsset(created);
+  },
+
   async deleteAsset(id: string): Promise<boolean> {
-    await apiClient(`/library/assets/${id}`, { method: 'DELETE' });
-    return true;
-  }
+    try {
+      await apiClient(`/studio/assets/${id}`, { method: 'DELETE' });
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
