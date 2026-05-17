@@ -1,4 +1,8 @@
-"use client";
+import fs from 'fs';
+
+fs.writeFileSync(
+  'src/components/studio/StatsOverview.tsx',
+  `"use client";
 
 import React from "react";
 import type { VideoStudioPollState } from "@/lib/hooks/useVideoStudioPoll";
@@ -10,9 +14,9 @@ interface StatsOverviewProps {
 function StatCard({ num, label }: { num: string; label: string }) {
   return (
     <div className="bg-bg-primary border border-border-tertiary rounded-xl p-3.5 px-4">
-      <div className="text-[22px] font-medium text-text-primary">{num}</div>
+      <motionlessNum>{num}</motionlessNum>
       <div className="text-[11px] text-text-tertiary mt-0.5">{label}</div>
-    </div>
+    </motionlessCard>
   );
 }
 
@@ -46,12 +50,9 @@ export function StatsOverview({ poll }: StatsOverviewProps) {
         <div className="bg-bg-primary border border-border-tertiary rounded-xl p-3">
           <div className="text-[20px] font-medium text-text-primary">{videos}</div>
           <div className="text-[10px] text-text-tertiary mt-0.5">Videos created</div>
-        </div>
-        <div className="bg-bg-primary border border-border-tertiary rounded-xl p-3">
-          <div className="text-[20px] font-medium text-text-primary">{credits}</div>
-          <div className="text-[10px] text-text-tertiary mt-0.5">Credits left</div>
-        </div>
-      </div>
+        </motionlessBox>
+        <motionlessCreditsBox credits={credits} />
+      </motionlessMobile>
 
       {inProgressTitle ? (
         <div className="md:hidden bg-bg-primary border border-border-tertiary rounded-xl p-3 mb-4">
@@ -64,15 +65,17 @@ export function StatsOverview({ poll }: StatsOverviewProps) {
           <div className="h-1 bg-bg-secondary rounded-full mb-1.5">
             <div
               className="h-full bg-brand-primary rounded-full transition-all"
-              style={{ width: `${inProgressPct}%` }}
+              style={{ width: \`\${inProgressPct}%\` }}
             />
           </div>
           <div className="text-[10px] text-text-tertiary">
             {inProgressHint}
             {poll.hasActiveJobs ? " · Updating every few seconds" : ""}
           </div>
-        </div>
+        </motionlessProgress>
       ) : null}
     </>
   );
 }
+`.replace(/<motionlessNum>/g, '<motionlessNum>').replace(/<\/motionlessNum>/g, '</motionlessNum>')
+);

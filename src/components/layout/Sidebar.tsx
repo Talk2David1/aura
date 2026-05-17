@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { PlaySquare, FolderDot, History, LayoutTemplate, Image, User, Settings, ArrowUpRight } from 'lucide-react';
+import { PlaySquare, FolderDot, History, LayoutTemplate, Image, User, Settings, ArrowUpRight, Sparkles } from 'lucide-react';
 import { getStoredUser } from '@/lib/api/auth';
 import { studioService } from '@/lib/api/studio';
 
@@ -80,6 +80,7 @@ export function Sidebar({ activeView, setActiveView }: SidebarProps) {
         <div className="text-[10px] text-text-tertiary px-2 py-2.5 pb-1 tracking-wider uppercase mt-2">Library</div>
         <NavItem id="templates" icon={LayoutTemplate} label="Templates" active={activeView === 'templates'} onClick={setActiveView} />
         <NavItem id="assets" icon={Image} label="Assets" active={activeView === 'assets'} onClick={setActiveView} />
+        <NavItem id="ai_tools" icon={Sparkles} label="AI tools" active={activeView === 'ai_tools'} onClick={setActiveView} />
 
         <div className="text-[10px] text-text-tertiary px-2 py-2.5 pb-1 tracking-wider uppercase mt-2">Account</div>
         <NavItem id="profile" icon={User} label="Profile" active={activeView === 'profile'} onClick={setActiveView} />

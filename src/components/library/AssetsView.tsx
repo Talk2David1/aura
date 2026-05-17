@@ -7,6 +7,11 @@ export function AssetsView() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<'all' | 'image' | 'audio' | 'video'>('all');
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [publicUrl, setPublicUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,6 +43,45 @@ export function AssetsView() {
     }
   };
 
+  const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPendingFile(file);
+    setPublicUrl('');
+    setUploadError(null);
+    setUploadOpen(true);
+    e.target.value = '';
+  };
+
+  const submitAsset = async () => {
+    if (!pendingFile || !publicUrl.trim().startsWith('http')) {
+      setUploadError('Upload your file to Cloudinary or another CDN, then paste the public https URL.');
+      return;
+    }
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const created = await libraryService.createAssetRecord({
+        name: pendingFile.name,
+        type: pendingFile.type.startsWith('image/')
+          ? 'image'
+          : pendingFile.type.startsWith('audio/')
+            ? 'audio'
+            : 'video',
+        sizeBytes: pendingFile.size,
+        url: publicUrl.trim(),
+      });
+      setAssets((prev) => [created, ...prev]);
+      setUploadOpen(false);
+      setPendingFile(null);
+      setPublicUrl('');
+    } catch {
+      setUploadError('Could not save asset record.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const getAssetIcon = (type: Asset['type']) => {
     switch(type) {
       case 'image': return <ImageIcon size={16} className="text-brand-primary" />;
@@ -49,16 +93,44 @@ export function AssetsView() {
   return (
     <div className="bg-bg-primary md:border border-border-tertiary rounded-xl p-4 md:p-6 mb-8 min-h-[500px]">
       
-      {/* Upload Zone */}
-      <div className="border-2 border-dashed border-border-secondary hover:border-brand-primary transition-colors rounded-2xl bg-bg-secondary flex flex-col items-center justify-center p-8 md:p-12 mb-8 cursor-pointer group">
-        <div className="w-12 h-12 bg-white border border-border-tertiary rounded-xl flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
-          <UploadCloud mx-auto size={24} className="text-brand-primary" />
+      <label className="border-2 border-dashed border-border-secondary hover:border-brand-primary transition-colors rounded-2xl bg-bg-secondary flex flex-col items-center justify-center p-8 md:p-12 mb-8 cursor-pointer group">
+        <input type="file" className="hidden" accept="image/*,audio/*,video/*" onChange={handleFilePick} />
+        <div className="w-12 h-12 bg-white border border-border-tertiary rounded-xl flex items-center justify-center mb-3 shadow-sm">
+          <UploadCloud size={24} className="text-brand-primary" />
         </div>
-        <h3 className="text-[14px] font-medium text-text-primary mb-1">Click or drag & drop to upload</h3>
+        <h3 className="text-[14px] font-medium text-text-primary mb-1">Select file to register</h3>
         <p className="text-[12px] text-text-tertiary text-center max-w-sm">
-          Support for images (JPG, PNG), audio (MP3, WAV) and video (MP4, MOV). Maximum 50MB per file.
+          Upload to your CDN, then save via POST /studio/assets with the public https URL.
         </p>
-      </div>
+      </label>
+
+      {uploadOpen && pendingFile ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-bg-primary rounded-xl p-5 max-w-md w-full border border-border-tertiary">
+            <h4 className="text-[14px] font-medium mb-2">Register asset</h4>
+            <p className="text-[12px] text-text-tertiary mb-3">
+              {pendingFile.name} ({Math.round(pendingFile.size / 1024)} KB)
+            </p>
+            <label className="block text-[12px] mb-1">Public URL</label>
+            <input
+              type="url"
+              value={publicUrl}
+              onChange={(e) => setPublicUrl(e.target.value)}
+              placeholder="https://res.cloudinary.com/..."
+              className="w-full p-2 border rounded-lg text-[13px] mb-3"
+            />
+            {uploadError ? <p className="text-[11px] text-coral-primary mb-2">{uploadError}</p> : null}
+            <div className="flex gap-2 justify-end">
+              <button type="button" onClick={() => setUploadOpen(false)} className="px-3 py-2 text-[13px] border rounded-lg">
+                Cancel
+              </button>
+              <button type="button" onClick={submitAsset} disabled={uploading} className="px-3 py-2 text-[13px] bg-brand-primary text-white rounded-lg">
+                {uploading ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">

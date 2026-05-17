@@ -75,23 +75,32 @@ export const libraryService = {
     return rows.map(mapApiAsset);
   },
 
+  async createAssetRecord(payload: {
+    name: string;
+    type: 'image' | 'audio' | 'video';
+    sizeBytes: number;
+    url: string;
+  }): Promise<Asset> {
+    const created = await apiClient<ApiAssetRow>('/studio/assets', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return mapApiAsset(created);
+  },
+
+  /** @deprecated Use createAssetRecord with a real CDN URL after upload */
   async uploadAsset(file: File): Promise<Asset> {
     const type: Asset['type'] = file.type.startsWith('image/')
       ? 'image'
       : file.type.startsWith('audio/')
         ? 'audio'
         : 'video';
-
-    const created = await apiClient<ApiAssetRow>('/studio/assets', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: file.name,
-        type,
-        sizeBytes: file.size,
-        url: typeof URL !== 'undefined' ? URL.createObjectURL(file) : '',
-      }),
+    return this.createAssetRecord({
+      name: file.name,
+      type,
+      sizeBytes: file.size,
+      url: typeof URL !== 'undefined' ? URL.createObjectURL(file) : '',
     });
-    return mapApiAsset(created);
   },
 
   async deleteAsset(id: string): Promise<boolean> {

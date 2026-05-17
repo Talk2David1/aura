@@ -6,6 +6,13 @@ export interface Project {
   mode: 'text-to-video' | 'photos-to-video' | 'youtube' | 'faceless';
   duration: string;
   createdAt: string;
+  progress: number;
+  outputVideoUrl: string | null;
+  outputVideoUrls: string[];
+  hasAudio: boolean;
+  playbackUrls: string[];
+  isImageOnly: boolean;
+  videoLength: string | null;
 }
 
 export interface GenerationHistory {

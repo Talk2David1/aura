@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Mail, KeyRound, Loader2, User } from 'lucide-react';
+import { Mail, Loader2, User } from 'lucide-react';
+import { PasswordInput } from '@/components/auth/PasswordInput';
 import { authService } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { OtpSignUpFlow } from '@/components/auth/OtpSignUpFlow';
@@ -209,20 +210,14 @@ export function AuthView({ onLogin }: AuthViewProps) {
             <label htmlFor="auth-password" className="block text-[12px] text-text-secondary mb-1.5 font-medium ml-1">
               Password
             </label>
-            <div className="relative">
-              <KeyRound size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
-              <input
-                id="auth-password"
-                name="password"
-                type="password"
-                required
-                autoComplete={isSignUp ? 'new-password' : 'current-password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-tertiary rounded-xl py-2 pl-10 pr-4 text-[14px] text-text-primary focus:outline-none focus:border-brand-primary transition-colors"
-                placeholder="••••••••"
-              />
-            </div>
+            <PasswordInput
+              id="auth-password"
+              name="password"
+              required
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+              value={password}
+              onChange={setPassword}
+            />
           </div>
 
           {isSignUp ? (

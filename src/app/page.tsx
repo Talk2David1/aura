@@ -4,9 +4,8 @@ import { useLayoutEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Header } from "@/components/layout/Header";
-import { StatsOverview } from "@/components/studio/StatsOverview";
-import { CreationForm } from "@/components/studio/CreationForm";
-import { RecentVideos } from "@/components/studio/RecentVideos";
+import { StudioView } from "@/components/studio/StudioView";
+import { AiToolsView } from "@/components/ai/AiToolsView";
 import { ProfileView } from "@/components/profile/ProfileView";
 import { SettingsView } from "@/components/settings/SettingsView";
 import { ProjectsView } from "@/components/studio/ProjectsView";
@@ -39,6 +38,7 @@ export default function App() {
       case 'upgrade': return { title: "Subscription Plans", subtitle: "Select a plan that fits your scale" };
       case 'templates': return { title: "Templates", subtitle: "Start quick with curated base videos" };
       case 'assets': return { title: "Library Assets", subtitle: "Manage uploaded media and uploads" };
+      case 'ai_tools': return { title: "AI Tools", subtitle: "Prompts, images, characters, and video remix" };
       default: return { title: activeView.charAt(0).toUpperCase() + activeView.slice(1), subtitle: "Coming soon..." };
     }
   };
@@ -99,13 +99,7 @@ export default function App() {
             </div>
 
             {activeView === 'studio' ? (
-              <>
-                <StatsOverview />
-                <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] 2xl:grid-cols-[1fr_450px] gap-4 md:gap-5">
-                  <CreationForm />
-                  <RecentVideos />
-                </div>
-              </>
+              <StudioView onViewAllProjects={() => setActiveView('projects')} />
             ) : activeView === 'profile' ? (
               <ProfileView
                 onUpgrade={() => setActiveView('upgrade')}
@@ -118,7 +112,9 @@ export default function App() {
             ) : activeView === 'settings' ? (
               <SettingsView />
             ) : activeView === 'projects' ? (
-              <ProjectsView />
+              <ProjectsView onCreateNew={() => setActiveView('studio')} />
+            ) : activeView === 'ai_tools' ? (
+              <AiToolsView />
             ) : activeView === 'history' ? (
               <HistoryView />
             ) : activeView === 'upgrade' ? (

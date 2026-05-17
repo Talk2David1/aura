@@ -12,6 +12,8 @@ export interface ApiVideoProject {
   durationSeconds: number | null;
   thumbnailUrl: string | null;
   outputVideoUrl: string | null;
+  outputVideoUrls: string[];
+  hasAudio: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,6 +28,56 @@ export interface ApiDashboard {
   inProgress: ApiVideoProject | null;
 }
 
+export interface StudioOptionItem {
+  id: string;
+  label: string;
+  description?: string;
+}
+
+export interface VideoStudioOptions {
+  creationModes: StudioOptionItem[];
+  dropdowns: {
+    videoLengths: StudioOptionItem[];
+    voiceStyles: StudioOptionItem[];
+    visualStyles: StudioOptionItem[];
+    niches: StudioOptionItem[];
+    aspectRatios: StudioOptionItem[];
+  };
+}
+
+export interface TextToVideoBody {
+  title?: string;
+  prompt: string;
+  voiceStyle: string;
+  visualStyle: string;
+  videoLength: string;
+}
+
+export interface PhotosScriptBody {
+  title?: string;
+  photos: string[];
+  script: string;
+  videoLength: string;
+}
+
+export interface YoutubeRepurposeBody {
+  title?: string;
+  youtubeUrl: string;
+  additionalPhotos?: string[];
+  customScript?: string;
+  videoLength: string;
+}
+
+export interface FacelessVideoBody {
+  title?: string;
+  topic: string;
+  niche: string;
+  aspectRatio: string;
+  videoLength: string;
+}
+
+export const POLL_INTERVAL_MS = 3000;
+
 export function formatProjectDuration(seconds: number | null | undefined): string {
   if (seconds == null || Number.isNaN(seconds)) return '—';
   const s = Math.max(0, Math.floor(seconds));
@@ -34,13 +86,13 @@ export function formatProjectDuration(seconds: number | null | undefined): strin
   return `${m}:${r.toString().padStart(2, '0')}`;
 }
 
-function mapApiStatus(status: string): Project['status'] {
+export function mapApiStatus(status: string): Project['status'] {
   if (status === 'completed') return 'completed';
   if (status === 'failed') return 'failed';
   return 'generating';
 }
 
-function mapApiMode(mode: string): Project['mode'] {
+export function mapApiMode(mode: string): Project['mode'] {
   switch (mode) {
     case 'text_to_video':
       return 'text-to-video';
@@ -55,8 +107,26 @@ function mapApiMode(mode: string): Project['mode'] {
   }
 }
 
+/** Playback URLs: all segments when long, else primary output */
+export function getPlaybackUrls(p: ApiVideoProject): string[] {
+  if (p.outputVideoUrls?.length) return p.outputVideoUrls;
+  if (p.outputVideoUrl) return [p.outputVideoUrl];
+  return [];
+}
+
+/** Image-only completion: keyframe URL, no segment videos */
+export function isImageOnlyOutput(p: ApiVideoProject): boolean {
+  return (
+    p.status === 'completed' &&
+    !!p.outputVideoUrl &&
+    (!p.outputVideoUrls || p.outputVideoUrls.length === 0) &&
+    !p.hasAudio
+  );
+}
+
 export function mapApiProjectToProject(p: ApiVideoProject): Project {
   const thumb = p.thumbnailUrl || '🎬';
+  const playbackUrls = getPlaybackUrls(p);
   return {
     id: p.id,
     title: p.title || 'Untitled',
@@ -65,6 +135,13 @@ export function mapApiProjectToProject(p: ApiVideoProject): Project {
     mode: mapApiMode(p.mode),
     duration: formatProjectDuration(p.durationSeconds),
     createdAt: p.createdAt,
+    progress: p.progress ?? 0,
+    outputVideoUrl: p.outputVideoUrl,
+    outputVideoUrls: p.outputVideoUrls ?? [],
+    hasAudio: p.hasAudio ?? false,
+    playbackUrls,
+    isImageOnly: isImageOnlyOutput(p),
+    videoLength: p.videoLength,
   };
 }
 
@@ -84,6 +161,10 @@ export function modeLabel(mode: string): string {
 }
 
 export const videoStudioService = {
+  async getOptions(): Promise<VideoStudioOptions> {
+    return apiClient<VideoStudioOptions>('/video-studio/options');
+  },
+
   async getDashboard(): Promise<ApiDashboard> {
     return apiClient<ApiDashboard>('/video-studio/dashboard');
   },
@@ -96,6 +177,35 @@ export const videoStudioService = {
     return apiClient<ApiVideoProject[]>(`/video-studio/projects${qs ? `?${qs}` : ''}`);
   },
 
+  async createTextToVideo(body: TextToVideoBody): Promise<ApiVideoProject> {
+    return apiClient<ApiVideoProject>('/video-studio/projects/text-to-video', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  async createPhotosScript(body: PhotosScriptBody): Promise<ApiVideoProject> {
+    return apiClient<ApiVideoProject>('/video-studio/projects/photos-script', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  async createYoutubeRepurpose(body: YoutubeRepurposeBody): Promise<ApiVideoProject> {
+    return apiClient<ApiVideoProject>('/video-studio/projects/youtube-repurpose', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  async createFacelessVideo(body: FacelessVideoBody): Promise<ApiVideoProject> {
+    return apiClient<ApiVideoProject>('/video-studio/projects/faceless-video', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  },
+
+  /** Generic fallback (all modes) */
   async createProject(body: Record<string, unknown>): Promise<ApiVideoProject> {
     return apiClient<ApiVideoProject>('/video-studio/projects', {
       method: 'POST',
