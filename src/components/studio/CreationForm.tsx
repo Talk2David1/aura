@@ -12,9 +12,9 @@ import { libraryService } from '@/lib/api/library';
 import type { Asset } from '@/types';
 
 const FALLBACK_LENGTHS: StudioOptionItem[] = [
-  { id: 'short', label: 'Short (~5s)' },
-  { id: 'medium', label: 'Medium (~10s)' },
-  { id: 'long', label: 'Long (~3 min, multi-segment)' },
+  { id: 'short', label: 'Short (10s)' },
+  { id: 'medium', label: 'Medium (20s)' },
+  { id: 'long', label: 'Long (30s)' },
 ];
 
 const FALLBACK_VOICES: StudioOptionItem[] = [
@@ -285,7 +285,7 @@ export function CreationForm({ onProjectCreated }: CreationFormProps) {
               libraryAssets={libraryAssets}
               selected={additionalPhotoUrls}
               onToggle={toggleAssetPhoto}
-              optionalLabel="Optional photos (URLs or library)"
+              optionalLabel="Optional direct photo URLs or library images"
             />
             <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">Custom script (optional)</label>
             <textarea
@@ -334,7 +334,7 @@ export function CreationForm({ onProjectCreated }: CreationFormProps) {
         </div>
         {activeLength === 'long' ? (
           <p className="text-[10px] text-text-tertiary">
-            Long jobs run multiple segments (~15s each, up to ~3 min total). Play segments in order; the API does not return one merged MP4.
+            Long jobs generate a 30s composed MP4 and may take longer because they use multiple OpenAI clips plus FFmpeg composition.
           </p>
         ) : null}
       </div>
@@ -405,13 +405,13 @@ function PhotoUrlFields({
   return (
     <>
       <label className="block text-[11px] md:text-[12px] text-text-secondary mb-1">
-        {optionalLabel ?? 'Photo URLs (one per line or comma-separated, https://)'}
+        {optionalLabel ?? 'Direct image URLs (one per line or comma-separated, preferably Cloudinary)'}
       </label>
       <textarea
         rows={2}
         value={photoUrlsText}
         onChange={(e) => setPhotoUrlsText(e.target.value)}
-        placeholder="https://cdn.example.com/photo1.jpg"
+        placeholder="https://res.cloudinary.com/.../photo1.jpg"
         className="w-full text-[13px] p-2.5 border border-border-tertiary rounded-lg bg-bg-secondary text-text-primary focus:outline-none focus:border-[#AFA9EC] resize-none"
       />
       {libraryAssets.length > 0 ? (

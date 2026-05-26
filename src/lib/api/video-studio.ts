@@ -107,20 +107,23 @@ export function mapApiMode(mode: string): Project['mode'] {
   }
 }
 
-/** Playback URLs: all segments when long, else primary output */
+function isLikelyImageUrl(url: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url) || url.includes('/image/upload/');
+}
+
+/** Playback uses the composed output first; clip URLs are supporting fallbacks only. */
 export function getPlaybackUrls(p: ApiVideoProject): string[] {
-  if (p.outputVideoUrls?.length) return p.outputVideoUrls;
   if (p.outputVideoUrl) return [p.outputVideoUrl];
+  if (p.outputVideoUrls?.length) return p.outputVideoUrls;
   return [];
 }
 
-/** Image-only completion: keyframe URL, no segment videos */
+/** Image-only completion: Cloudinary image/keyframe instead of a playable video. */
 export function isImageOnlyOutput(p: ApiVideoProject): boolean {
   return (
     p.status === 'completed' &&
     !!p.outputVideoUrl &&
-    (!p.outputVideoUrls || p.outputVideoUrls.length === 0) &&
-    !p.hasAudio
+    isLikelyImageUrl(p.outputVideoUrl)
   );
 }
 

@@ -5,6 +5,7 @@ import { Circle, Play } from "lucide-react";
 import {
   formatProjectDuration,
   getPlaybackUrls,
+  isImageOnlyOutput,
   modeLabel,
   type ApiVideoProject,
 } from "@/lib/api/video-studio";
@@ -129,7 +130,7 @@ export function RecentVideos({ poll, onViewAllProjects }: RecentVideosProps) {
           title={player.title || "Untitled"}
           urls={getPlaybackUrls(player)}
           hasAudio={player.hasAudio}
-          isImageOnly={!!player.outputVideoUrl && !(player.outputVideoUrls?.length) && !player.hasAudio}
+          isImageOnly={isImageOnlyOutput(player)}
           onClose={() => setPlayer(null)}
         />
       ) : null}

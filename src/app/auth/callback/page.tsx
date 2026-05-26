@@ -60,7 +60,7 @@ export default function AuthCallbackPage() {
     }
     if (!token) {
       setMessage(
-        "No access token in this URL. Configure your API Google callback to redirect here with ?access_token=… (and optional &user=… as JSON). See NEXT_PUBLIC_APP_URL in .env.example."
+        "No access token in this URL. Configure GOOGLE_AUTH_SUCCESS_REDIRECT_URL to redirect here with #access_token=...&user=... in the URL hash."
       );
       return;
     }

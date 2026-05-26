@@ -28,7 +28,7 @@ export interface CloudinaryUploadMeta {
 }
 
 export interface ImageGenerateResponse {
-  predictionId: string;
+  predictionId: string | null;
   model: string;
   outputs: string[];
   cloudinary: CloudinaryUploadMeta;
@@ -39,21 +39,6 @@ export interface CharacterGenerateRequest {
   description: string;
   style?: string;
   mood?: string;
-}
-
-export interface VideoRemixRequest {
-  sourceVideoUrl: string;
-  instruction: string;
-  model?: string;
-  inputOverrides?: Record<string, unknown>;
-}
-
-export interface VideoRemixResponse {
-  predictionId: string;
-  model: string;
-  prompt: string;
-  outputs: string[];
-  cloudinary: CloudinaryUploadMeta;
 }
 
 export const aiService = {
@@ -73,13 +58,6 @@ export const aiService = {
 
   generateCharacter(body: CharacterGenerateRequest): Promise<ImageGenerateResponse> {
     return apiClient<ImageGenerateResponse>('/ai/characters/generate', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-  },
-
-  remixVideo(body: VideoRemixRequest): Promise<VideoRemixResponse> {
-    return apiClient<VideoRemixResponse>('/ai/videos/remix', {
       method: 'POST',
       body: JSON.stringify(body),
     });

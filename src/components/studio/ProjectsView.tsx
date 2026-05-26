@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { Play, MoreVertical, Clock, Search, RotateCcw } from "lucide-react";
+import { Play, Clock, Search, RotateCcw } from "lucide-react";
 import {
   videoStudioService,
   mapApiProjectToProject,

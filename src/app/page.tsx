@@ -38,7 +38,7 @@ export default function App() {
       case 'upgrade': return { title: "Subscription Plans", subtitle: "Select a plan that fits your scale" };
       case 'templates': return { title: "Templates", subtitle: "Start quick with curated base videos" };
       case 'assets': return { title: "Library Assets", subtitle: "Manage uploaded media and uploads" };
-      case 'ai_tools': return { title: "AI Tools", subtitle: "Prompts, images, characters, and video remix" };
+      case 'ai_tools': return { title: "AI Tools", subtitle: "Prompts, images, and characters" };
       default: return { title: activeView.charAt(0).toUpperCase() + activeView.slice(1), subtitle: "Coming soon..." };
     }
   };
